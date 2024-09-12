@@ -1,5 +1,6 @@
 import React, { Component, useEffect, useState } from 'react';
 import '../components/Search.css'
+import useDebounce from './hooks/useDebounce';
 const Search = () => {
 
     const [searchInput, SetSearchInput] = useState("")
@@ -10,6 +11,8 @@ const Search = () => {
 
     const[keydownTime, setKeydownTime] = useState('')
     const[keyUpTime, setkeyUpTime] = useState('')
+
+    const debouncedInput = useDebounce(searchInput,1000);
 
 
 
@@ -22,7 +25,7 @@ const Search = () => {
 
             setActiveSuggestion(0);
 
-            if (searchInput.trim() === "") {
+            if (searchInput.trim() === "" || debouncedInput.trim()=== "") {
                 setSuggestions([])
                 return
             }
@@ -30,7 +33,7 @@ const Search = () => {
 
             console.log(searchInput)
 
-            fetch(`https://dummyjson.com/users/search?q=${searchInput}`)
+            fetch(`https://dummyjson.com/users/search?q=${debouncedInput}`)
                 .then((res) => res.json())
                 .then((data) => setSuggestions(data))
                 .catch((err) => {
@@ -47,7 +50,7 @@ const Search = () => {
      
        fetchUsers();
 
-    }, [searchInput])
+    }, [debouncedInput])
 
 
     const handleSelectedUsers = (users) => {
@@ -75,7 +78,7 @@ const Search = () => {
 
     const handleKeyDown = (e) => {
 
-         setKeydownTime(Date.now())
+        
         if (
             e.key === "Backspace" &&
             e.target.value === "" &&
@@ -106,7 +109,7 @@ const Search = () => {
         setkeyUpTime(Date.now())
 
     }
-
+   
 
     return (
         <div>
@@ -148,6 +151,9 @@ const Search = () => {
             </div>
 
 
+
+
+       
         </div>
     );
 }
